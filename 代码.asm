@@ -84,7 +84,7 @@ DSINIT:  MOV   DPTR,#7F0BH          ;初始化寄存器B，禁止芯片内部的更新周期操作，
 
 
      MOV   DPTR,#7F09H          ;初始化年低位为21
-	 MOV   A,#21H
+	 MOV   A,#22H
      MOVX  @DPTR,A 
 
 
