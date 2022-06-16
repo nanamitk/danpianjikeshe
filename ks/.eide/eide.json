@@ -2,7 +2,7 @@
   "name": "ks",
   "type": "C51",
   "mode": "Debug",
-  "toolchain": "SDCC",
+  "toolchain": "Keil_C51",
   "uploader": "stcgal",
   "dependenceList": [
     {
