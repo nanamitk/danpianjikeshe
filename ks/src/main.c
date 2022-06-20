@@ -34,12 +34,39 @@ void delayxms(int t) //延时xms
         
     }
 }
-void dd()
+void key1();
+void key2();
+void key3();
+void key4();
+void key()
 {
-    delayxms(10);
-    if (p1^0==0)
+    delayxms(10); //消抖
+    if (P1 ^ 0 == 0 || P1 ^ 1 == 0 || P1 ^ 2 == 0 || P1 ^ 3 == 0)
     {
-        tq1();
+        while (1) //循环，等到按钮弹起时执行接下来的程序，并退出循环
+        {
+            if (P1 ^ 0 == 1 || P1 ^ 1 == 1 || P1 ^ 2 == 1 || P1 ^ 3 == 1)
+            {
+                delayxms(10);
+                if (P1^0==1)
+                {
+                    key1();
+                }
+                else if (P0 ^ 1 == 1)
+                {
+                    key2();
+                }
+                else if (P0^2==1)
+                {
+                    key3();
+                }
+                else if (P0 ^ 3 == 1)
+                {
+                    key4();
+                }
+                break;
+            }
+        }
     }
 }
 void main() //主程序
@@ -68,7 +95,7 @@ void main() //主程序
     {
         if (P1^0==0||P1^1==0|| P1^2==0|| P1^3==0)
         {
-            dd();
+            key();
         }
     }
 }
