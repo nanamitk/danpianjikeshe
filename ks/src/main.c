@@ -5,10 +5,11 @@
 #define uint unsigned int
 #define uchar unsigned char
 uchar a;
-sfr time = 0x60;
-sfr sptime = 0x61;
-sfr settings = 0x62;
-sfr inen = 0x64;
+sfr biaozhi = 0x60; //显示内容标志位,00H-时间，08H-日期，10H-电压
+sfr sptime = 0x61; //闪烁间隔时间
+sfr settings = 0x62;//亮灭状态控制标志位
+sfr splo = 0x63;//闪烁位置标志位
+sfr inen = 0x64;//进入，推出设置标志位
 void dsinit() //初始化ds12887
 {
     XBYTE[0x7F0B] = 0x82;
@@ -38,6 +39,8 @@ void key1();
 void key2();
 void key3();
 void key4();
+void newtime();
+void judge();
 void key()
 {
     delayxms(10); //消抖
@@ -69,6 +72,71 @@ void key()
         }
     }
 }
+void key1()
+{
+    if (biaozhi!=0x10)
+    {
+        if (inen == 0x00)
+        {
+            inen = 0x1;
+            EX0 = 0;
+            splo = 0b00111111;
+        }
+        else if(inen==0x01)
+        {
+            inen = 0x0;
+            newtime();
+            EX0 = 0;
+            splo = 0b11111111;
+        }
+        
+    }
+}
+void key2()
+{
+    if (inen==0x1)
+    {
+        if (splo==0b00111111)
+        {
+            splo = 0b11001111;
+        }
+        else if (splo==0b11001111)
+        {
+            splo = 0b11110011;
+        }
+        else if (splo==0b11110011)
+        {
+            splo = 0b11111100;
+        }
+        else if (splo==0x11111100)
+        {
+            splo = 0x00111111;
+        }
+    }
+}
+void key3()
+{
+    if (inen==0x1)
+    {
+        judge();
+    }
+}
+void key4()
+{
+    if (biaozhi == 0)
+    {
+        biaozhi = 0x8;
+    }
+    else if (biaozhi==0x8)
+    {
+        biaozhi = 0x10;
+        splo = 0xff;
+    }
+    else if (biaozhi==0x10)
+    {
+        biaozhi == 0x0;
+    }
+}
 void main() //主程序
 {
     dsinit();
@@ -78,9 +146,10 @@ void main() //主程序
     TL1 = 0;
     TH1 = 0;
     SP = 0x20;
-    time = 0;
+    biaozhi = 0;
     sptime = 0;
     settings = 0;
+    splo = 0xff;
     inen = 0;
     EA = 1;
     EX1 = 1;
