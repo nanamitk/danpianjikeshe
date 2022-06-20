@@ -5,10 +5,10 @@
 #define uint unsigned int
 #define uchar unsigned char
 uchar a;
-sbit aj1 = p1 ^ 0;
-sbit aj2 = p1 ^ 1;
-sbit aj3 = p1 ^ 2;
-sbit aj4 = p1 ^ 3;
+sfr time = 0x60;
+sfr sptime = 0x61;
+sfr settings = 0x62;
+sfr inen = 0x64;
 void dsinit() //初始化ds12887
 {
     XBYTE[0x7F0B] = 0x82;
@@ -20,11 +20,12 @@ void dsinit() //初始化ds12887
     XBYTE[0x7F09] = 0x22;
     XBYTE[0x7F0E] = 0x20;
     XBYTE[0x7F0A] = 0x20;
-    a = XBYTE[0x7F0C];
-    a = XBYTE[0x070D];
+    ACC = XBYTE[0x7F0C];
+    ACC = XBYTE[0x070D];
     XBYTE[0x7f0b] = 0x12;
 
 }
+
 void delayxms(int t) //延时xms
 {
     for (int i = 0; i < t; i++)
@@ -36,31 +37,38 @@ void delayxms(int t) //延时xms
 void dd()
 {
     delayxms(10);
-    if (aj1==1)
+    if (p1^0==0)
     {
-        while (1)
-        {
-            if (aj1==0)
-            {
-                delayxms(10);
-                if (aj1 == 1)
-                {
-                    if (DBYTE[0x60]!=0x10)
-                    {
-                        if (DBYTE[0x64] != 0x00)
-                        {
-                            DBYTE[0x64] = 0x00;
-
-                        }
-                    }
-                }
-                break       
-            }
-        }
+        tq1();
     }
 }
-void main()
+void main() //主程序
 {
     dsinit();
-
+    TMOD = 0xd1;
+    TL0 = 0x18;
+    TH0 = 0xfc;
+    TL1 = 0;
+    TH1 = 0;
+    SP = 0x20;
+    time = 0;
+    sptime = 0;
+    settings = 0;
+    inen = 0;
+    EA = 1;
+    EX1 = 1;
+    EX0 = 1;
+    IT1 = 1;
+    IT0 = 1;
+    ET0 = 1;
+    TR0 = 1;
+    PX1 = 1;
+    TR1 = 1;
+    while (1)
+    {
+        if (P1^0==0||P1^1==0|| P1^2==0|| P1^3==0)
+        {
+            dd();
+        }
+    }
 }
