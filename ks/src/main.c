@@ -18,7 +18,13 @@ sfr day = 0x34;
 sfr month = 0x35;
 sfr year1 = 0x36;
 sfr year2 = 0x37;
-sfr R0=
+sfr R0 = 0x40;
+sfr R1 = 0x50;
+sfr R3 = 0x30;
+sfr R4 = 0x60;
+sfr R6 = 0x70;
+sfr R7 = 0x80;
+a = ACC;
 void dsinit() //初始化ds12887
 {
     XBYTE[0x7F0B] = 0x82;
@@ -264,6 +270,25 @@ void DS12887()
     EA = 1;
     EX0 = 1;
 }
+void on();
+void off();
+void BUFFER() //缓冲区数据处理
+{
+    R0 = 0x40;
+    R1 = 0x30;
+    R7 = 0x08;
+    while (R7>0)
+    {
+        *R0 = *R1 & 0b00001111;  //完全不知道怎么写
+        R0++;
+        *R0 = *R1 & 0b111100000;
+        *R0 = *R0 / 0x10;
+        R0++;
+        R1++;
+        R7--;
+    }
+}
+void shine();
 void DISPLAY()
 {
     PSW^4 = 0;
@@ -288,8 +313,76 @@ void shine()
 }
 void on()
 {
-    XBYTE[] = R7;
+    uchar array duanma = { 0x5f,0x06,0x3b,0x2f,0x66,0x6d,0x7d,0x7f,0x6f,0x20,0x00,0x0d,0x86 };
+    while (R7 >= 1)
+    {
+        XBYTE[0x0dfff] = R7;
+        XBYTE[0x0bfff] = duanma[R0];
+        delayxms(1);
+        R7 = R7 / 2;
+        R0++;
+    }
+    TR0 = 1;
+    EA = 1;
+}
+void off()
+{
+    uchar array duanma = { 0x5f,0x06,0x3b,0x2f,0x66,0x6d,0x7d,0x7f,0x6f,0x20,0x00,0x0d,0x86 };
+    while (R7 >= 1)
+    {
+        a = splo & R7;
+        XBYTE[0x0dfff] = R7;
+        XBYTE[0x0bfff] = duanma[R0];
+        delayxms(1);
+        R7 = R7 / 2;
+        R0++;
+    }
+    TR0 = 1;
+    EA = 1;
+}
+void change();//没理解，写不出来
+void vdisplay();
+void voltage()
+{
+    TR1 = 0;
+    EA = 0;
+    PSW ^ 3 = 1;
+    PSW ^ 4 = 1;
+    R7 = TL1 - 0x10;
+    R6 = TH1 - 0x27;
+    TH1 = 0;
+    TL1 = 0;
+    change();
+    vdisplay();
+    EA = 1;
+    TR1 = 1;
 
+}
+void vdisplay() //大概是电压值的处理
+{
+    sfr h55 = 0x55;
+    sfr h57 = 0x57;
+    sfr h56 = 0x56;
+    PSW ^ 3 = 1;
+    PSW ^ 4 = 1;
+    h55 = 0x0b;
+    if (P1^1==1)
+    {
+        h57 = 0x0b;
+        h56 = 0x0b;
+        sfr R1 = 0x50;
+        R1 = R5 & 0b00001111;
+        sfr R1 = 0x51;
+        R1 = (R5 & 0b11110000)/0x10;
+        sfr R1 = 0x51;
+        R1 = (R5 & 0b11110000) / 0x10;
+        sfr R1 = 0x52;
+        R1 = R4 & 0b00001111;
+        sfr R1 = 0x53;
+        R1 = (R4 & 0b11110000) / 0x10;
+        sfr R1 = 0x54;
+        R1 = R3 + 0x0c;
+    }
 }
 void main() //主程序
 {
