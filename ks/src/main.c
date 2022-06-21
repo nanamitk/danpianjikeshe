@@ -10,6 +10,13 @@ sfr sptime = 0x61; //闪烁间隔时间
 sfr settings = 0x62;//亮灭状态控制标志位
 sfr splo = 0x63;//闪烁位置标志位
 sfr inen = 0x64;//进入，推出设置标志位
+sfr second = 0x30;
+sfr minute = 0x31;
+sfr hour = 0x32;
+sfr week = 0x33;
+sfr day = 0x34;
+sfr month = 0x35;
+sfr year = 0x36;
 void dsinit() //初始化ds12887
 {
     XBYTE[0x7F0B] = 0x82;
@@ -136,6 +143,70 @@ void key4()
     {
         biaozhi == 0x0;
     }
+}
+void judge()
+{
+    if (biaozhi==0x0)
+    {
+        if (splo == 0b00111111)
+        {
+            second();
+        }
+        else if(splo==0b11001111)
+        {
+            minute();
+        }
+        else if (splo == 0b11110011)
+        {
+            hour();
+        }
+        else
+        {
+            week();
+        }
+    }
+    else if(biaozhi==0x08)
+    {
+        if (splo == 0b00111111)
+        {
+            day();
+        }
+        else if (splo == 0b11001111)
+        {
+            month();
+        }
+        else
+        {
+            year();
+        }
+    }
+}
+void second();
+void minute();
+void hour()
+void week();
+void day();
+void month();
+void year();
+void second()
+{
+    second++;
+    if (second >= 24) second = 0;
+}
+void minute()
+{
+    second++;
+    if (second >= 24) second = 0;
+}
+void second()
+{
+    second++;
+    if (second >= 24) second = 0;
+}
+void second()
+{
+    second++;
+    if (second >= 24) second = 0;
 }
 void main() //主程序
 {
