@@ -16,11 +16,14 @@ sfr hour = 0x32;
 sfr week = 0x33;
 sfr day = 0x34;
 sfr month = 0x35;
-sfr year = 0x36;
+sfr year1 = 0x36;
+sfr year2 = 0x37;
+sfr R0=
 void dsinit() //初始化ds12887
 {
     XBYTE[0x7F0B] = 0x82;
     XBYTE[0x7F00] = 0x00;
+    XBYTE[0x7F02] = 0x15;
     XBYTE[0x7F04] = 0x15;
     XBYTE[0x7F06] = 0x03;
     XBYTE[0x7F07] = 0x17;
@@ -191,22 +194,102 @@ void year();
 void second()
 {
     second++;
-    if (second >= 24) second = 0;
+    if (second >59) second = 0;
 }
 void minute()
 {
-    second++;
-    if (second >= 24) second = 0;
+    minute++;
+    if (minute >59) minute = 0;
 }
-void second()
+void hour()
 {
-    second++;
-    if (second >= 24) second = 0;
+    hour++;
+    if (hour >23) hour = 0;
 }
-void second()
+void week()
 {
-    second++;
-    if (second >= 24) second = 0;
+    week++;
+    if (weeek >7) weeek = 0;
+}
+void day()
+{
+    day++;
+    switch (month)
+    {
+        case 1 || 3 || 5 || 7 || 8 || 10 || 12: if (day >31) day = 0;
+        case 2:if (day > 29) day = 0;
+        case 4 || 6 || 9 || 11:if (day > 30) day = 0;
+    }
+}
+void month()
+{
+    month++;
+    if (month > 7) month = 0;
+}
+void year()
+{
+    year++;
+}
+void newtime()
+{
+    XBYTE[0x7F0B] = 0x82;
+    XBYTE[0x7F00] = second;
+    XBYTE[0x7F02] = minute;
+    XBYTE[0x7F04] = hour;
+    XBYTE[0x7F06] = week;
+    XBYTE[0x7F07] = day;
+    XBYTE[0x7F08] = month;
+    XBYTE[0x7F09] = year1;
+    XBYTE[0x7F0E] = year2;
+    XBYTE[0x7F0A] = 0x20;
+    ACC = XBYTE[0x7F0C];
+    ACC = XBYTE[0x7F0D];
+    XBYTE[0x7F0B] = 0x12;
+}
+
+void DS12887()
+{
+    EX0 = 0;
+    EA = 0;
+    PSW ^ 3 = 0;
+    PSW ^ 4 = 1;
+    second = XBYTE[0x7F00];
+    minute = XBYTE[0x7F02];
+    hour = XBYTE[0x7F04];
+    week = XBYTE[0x7F06];
+    day = XBYTE[0x7F07];
+    month = XBYTE[0x7F08];
+    year1 = XBYTE[0x7F09];
+    year2 = XBYTE[0x7F0E];
+    EA = 1;
+    EX0 = 1;
+}
+void DISPLAY()
+{
+    PSW^4 = 0;
+    PSW^3 = 1;
+    EA = 0;
+    TR0 = 0;
+    TL0 = 0x17;
+    TH0 = 0xFC;
+    BUFFER();
+    R0 = 0x40;
+    R0 = R0+0x60;
+    R7 = 0x80;
+    sptime++;
+    if (sptime != 0x20) shine();
+    setting = setting ^ 0xFF;
+    sptime = 0x00;
+}
+void shine()
+{
+    if (setting == 0x00) off();
+    else on();
+}
+void on()
+{
+    XBYTE[] = R7;
+
 }
 void main() //主程序
 {
